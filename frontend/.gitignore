@@ -1,7 +1,9 @@
 .DS_Store
 node_modules
+package-lock.json
 /dist
 swagger.json
+src/swagger
 
 # local env files
 .env.local
