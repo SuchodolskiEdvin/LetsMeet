@@ -3,35 +3,46 @@ import LoginView from "../views/LoginView.vue";
 import MainView from "../views/MainView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import EditProfile from "../views/EditProfileView.vue";
+import LayoutPublic from "@/views/layout/LayoutPublic.vue";
+import LayoutSecured from "@/views/layout/LayoutSecured.vue";
 
 // Widoki
 const routes = [
 	{
+		component: LayoutPublic,
 		path: "/",
-		name: "login",
-		component: LoginView
+		children: [
+			{
+				path: "/",
+				name: "login",
+				component: LoginView
+			},
+			{
+				path: "/register",
+				name: "register",
+				component: RegisterView
+			},
+		],
 	},
 	{
-		path: "/register",
-		name: "register",
-		component: RegisterView
-	},
-	{
-		path: "/home",
-		name: "home",
-		component: MainView,
+		component: LayoutSecured,
+		path: "/",
 		meta: {
 			requiresAuth: true,
-		}
+		},
+		children: [
+			{
+				path: "/home",
+				name: "home",
+				component: MainView
+			},
+			{
+				path: "/user/edit",
+				name: "userEdit",
+				component: EditProfile
+			}
+		],
 	},
-	{
-		path: "/user/edit",
-		name: "userEdit",
-		component: EditProfile,
-		meta: {
-			requiresAuth: true,
-		}
-	}
 ];
 
 const router = createRouter({
