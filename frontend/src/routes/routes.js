@@ -1,9 +1,8 @@
 import {createRouter, createWebHistory} from "vue-router";
-
-import LoginView from "../components/LoginView.vue";
-import MainView from "../components/MainView.vue";
-import RegisterView from "../components/RegisterView.vue";
-import EditProfile from "../components/EditProfileView.vue";
+import LoginView from "../views/LoginView.vue";
+import MainView from "../views/MainView.vue";
+import RegisterView from "../views/RegisterView.vue";
+import EditProfile from "../views/EditProfileView.vue";
 
 // Widoki
 const routes = [
@@ -34,7 +33,6 @@ const routes = [
 		}
 	}
 ];
-
 
 const router = createRouter({
 	history: createWebHistory(process.env.BASE_URL),

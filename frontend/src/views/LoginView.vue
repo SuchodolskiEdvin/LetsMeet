@@ -94,5 +94,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import "assets/scss/login";
+  @import "assets/login";
 </style>
