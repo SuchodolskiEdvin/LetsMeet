@@ -1,46 +1,25 @@
 <template>
   <div class="login-container">
-    <div class="login-panel-outer p-4 sm:py-4 md:px-8">
-      <div class="login-panel-header" style="display: flex; justify-content: center; align-items: center;">
+    <div class="login-panel-outer sm:py-4">
+      <div class="login-panel-header">
         <img src="@/assets/logo.png" alt="logo" class="max-w-full">
       </div>
       <div class="login-panel-content">
-        <h1 class="py-3 text-center">Login</h1>
+        <h1 class="py-3 text-center">Witam ponownie</h1>
         <VeeForm @submit="login" v-slot="{ errors }">
           <div class="p-fluid">
-            <div v-if="loginError" class="p-mb-5">{{ $t('message.login.loginError') }}</div>
+            <div v-if="loginError" class="p-mb-5"> Error </div>
             <div class="flex flex-column field relative">
-              <label class="mb-2 inline-block" for="name"> Username </label>
-              <InputText name="login" type="text" v-model="loginForm.login"/>
-
-              <div class="p-fluid custom-password relative field">
-                <label name="password" label="Hasło" :required="required"/>
-                <span class="p-float-label p-input-icon-left">
-                  <i :class="icon" class="icon" />
-                  <Password id="password" name="password" v-model="loginForm.password">
-                    <template #header>
-                      <h6>Pick a password</h6>
-                    </template>
-                    <template #footer v-if="lowercase || uppercase || numeric
-                        || charactersNumber || specialCharacter">
-                        <p class="p-mt-2">Wymagania</p>
-                        <ul class="p-pl-2 p-ml-2 p-mt-0" style="line-height: 1.5">
-                            <li v-if="lowercase">Przynajmniej jedna mała litera</li>
-                            <li v-if="uppercase">Przynajmniej jedna wielka litera</li>
-                            <li v-if="numeric">Przynajmniej jedna cyfra</li>
-                            <li v-if="specialCharacter">Przynajmniej 1 znak specjalny</li>
-                            <li v-if="charactersNumber">Przynajmniej 8 znaków</li>
-                        </ul>
-                    </template>
-                    <template #footer v-else>
-                        <p class="p-mt-2">Hasło spełnia wymagania</p>
-                    </template>
-                  </Password>
-                </span>
-                <CustomValidationMessage :errorMessage="errorMessage" />
+              <div class="mb-2">
+                <label class="mb-2 inline-block" for="name">E-mail</label>
+                <InputText name="login" type="text" v-model="loginForm.login"/>
               </div>
-<!--              <InputText name="password" v-model="loginForm.password"-->
-<!--                  label="password" rules="required"/>-->
+              <div class="p-fluid custom-password relative field">
+                <label :required="required"> Hasło </label>
+                <span class="p-float-label p-input-icon-left">
+                  <Password id="password" name="password" v-model="loginForm.password" :feedback="false" toggleMask/>
+                </span>
+              </div>
             </div>
             <div class="login-error" v-if="badCredentials">
               Niepoprawne dane logowania
@@ -49,15 +28,21 @@
                 :disabled="isDisabled(errors)"/>
           </div>
         </VeeForm>
-<!--        <router-link :to="{name: 'remindPassword'}" class="text-center block my-3">-->
-<!--          remind password-->
-<!--        </router-link>-->
-<!--        <div class="text-center">-->
-<!--          pls register - -->
-<!--          <router-link :to="{name: 'register'}" class="text-center block my-2">-->
-<!--            register-->
-<!--          </router-link>-->
-<!--        </div>-->
+        <div class="text-center block my-3">
+          Nie posiadasz konta?
+          <router-link :to="{name: 'register'}">
+            Zarejestruj się
+          </router-link>
+        </div>
+        <Divider>
+          OR
+        </Divider>
+        <div class="text-center">
+          Nie pamiętasz hasła?
+          <router-link :to="{name: 'register'}" class="text-center">
+            Zresetuj hasło
+          </router-link>
+        </div>
       </div>
     </div>
   </div>
@@ -67,18 +52,18 @@
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Password from "primevue/password";
+import Divider from "primevue/divider";
 import {Form as VeeForm} from "vee-validate";
 import {loginUsingPOST as loginRequest} from "@/swagger/vue-api-client";
 
 export default {
   name: "LoginView",
   components: {
-    InputText, Button, VeeForm, Password
+    InputText, Button, VeeForm, Password, Divider
   },
 
   data() {
     return {
-      loginError: false,
       loginForm: {
         login: "",
         password: "",
@@ -97,8 +82,6 @@ export default {
       loginRequest({authenticationRequest: this.loginForm})
           .then((response) => {
             localStorage.setItem("token", response.data.token);
-            localStorage.setItem("role", response.data.role);
-            localStorage.setItem("fullName", response.data.fullName);
             if (this.$route.query.next) {
               this.$router.push(this.$route.query.next);
             } else {

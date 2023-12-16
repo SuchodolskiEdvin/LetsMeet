@@ -2,6 +2,9 @@ import 'primevue/resources/themes/lara-light-green/theme.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import PrimeVue from "primevue/config";
+import "primevue/resources/primevue.min.css";
+import "primeicons/primeicons.css";
+import "primeflex/primeflex.css";
 import AutoComplete from "primevue/dropdown";
 import Button from "primevue/button";
 import Dialog from 'primevue/dialog';
