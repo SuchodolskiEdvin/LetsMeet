@@ -14,19 +14,23 @@
         <div class="mb-2">
           <label class="mb-2 inline-block" for="name">Hasło</label>
           <span class="p-float-label p-input-icon-left">
-            <Password name="password" v-model="registerForm.password" toggleMask>
+            <Password name="password" v-model="registerForm.password" toggleMask @input="checkPassword">
               <template #header>
                 <h6>Pick a password</h6>
               </template>
-              <template #footer v-if="loginErrorType.lowercase || loginErrorType.uppercase ||
-                      loginErrorType.numeric || loginErrorType.charactersNumber || loginErrorType.specialCharacter">
+              <template #footer v-if="showPasswordRules">
                 <p class="p-mt-2">Wymagania</p>
                 <ul class="p-pl-2 p-ml-2 p-mt-0" style="line-height: 1.5">
                   <li v-if="loginErrorType.lowercase">Przynajmniej jedna mała litera</li>
+                  <li v-else style="text-decoration: line-through;">Przynajmniej jedna mała litera</li>
                   <li v-if="loginErrorType.uppercase">Przynajmniej jedna wielka litera</li>
+                  <li v-else style="text-decoration: line-through;">Przynajmniej jedna wielka litera</li>
                   <li v-if="loginErrorType.numeric">Przynajmniej jedna cyfra</li>
+                  <li v-else style="text-decoration: line-through;">Przynajmniej jedna cyfra</li>
                   <li v-if="loginErrorType.specialCharacter">Przynajmniej 1 znak specjalny</li>
+                  <li v-else style="text-decoration: line-through;">Przynajmniej 1 znak specjalny</li>
                   <li v-if="loginErrorType.charactersNumber">Przynajmniej 8 znaków</li>
+                  <li v-else style="text-decoration: line-through;">Przynajmniej 8 znaków</li>
                 </ul>
               </template>
               <template #footer v-else>
@@ -70,7 +74,9 @@ import Password from "primevue/password";
 
 export default {
   name: 'RegisterView',
+
   components: {Button, VeeForm, Toast, Password},
+
   data() {
     return {
       registerForm: {
@@ -80,7 +86,6 @@ export default {
         password: "",
         confirmPassword: "",
       },
-      loginError: false,
       loginErrorType: {
         lowercase: true,
         uppercase: true,
@@ -98,6 +103,20 @@ export default {
 
     register() {
 
+    },
+
+    checkPassword() {
+      this.loginErrorType.specialCharacter = !(/(?=.*[!@#$%^&*()[\]{};:+=|,<.>`~£§?/'\\-_"])/.test(this.registerForm.password));
+      this.loginErrorType.uppercase = !(/(?=.*[A-ZŻŹĆŃÓŁĘĄŚ])/.test(this.registerForm.password));
+      this.loginErrorType.lowercase = !(/(?=.*[a-zżźćńółęąś])/.test(this.registerForm.password));
+      this.loginErrorType.numeric = !(/(?=.*\d)/.test(this.registerForm.password));
+      this.loginErrorType.charactersNumber = !(/(?=.*[a-zA-ZżźćńółęąśZŻŹĆŃÓŁĘĄŚ]).{8,}$/.test(this.registerForm.password));
+    }
+  },
+
+  computed: {
+    showPasswordRules() {
+      return Object.values(this.loginErrorType).some(error => error);
     },
   },
 }
