@@ -14,23 +14,21 @@
         <div class="mb-2">
           <label class="mb-2 inline-block" for="name">Hasło</label>
           <span class="p-float-label p-input-icon-left">
-            <Password name="password" v-model="registerForm.password" toggleMask @input="checkPassword">
-              <template #header>
-                <h6>Pick a password</h6>
-              </template>
+            <Password name="password" v-model="registerForm.password" toggleMask @input="checkPassword"
+                promptLabel="Wprowadź hasło" weak-label="Słabe" medium-label="Średnie" strong-label="Mocne!">
               <template #footer v-if="showPasswordRules">
                 <p class="p-mt-2">Wymagania</p>
                 <ul class="p-pl-2 p-ml-2 p-mt-0" style="line-height: 1.5">
                   <li v-if="loginErrorType.lowercase">Przynajmniej jedna mała litera</li>
-                  <li v-else style="text-decoration: line-through;">Przynajmniej jedna mała litera</li>
+                  <li v-else class="condition_fulfilled">Przynajmniej jedna mała litera</li>
                   <li v-if="loginErrorType.uppercase">Przynajmniej jedna wielka litera</li>
-                  <li v-else style="text-decoration: line-through;">Przynajmniej jedna wielka litera</li>
+                  <li v-else class="condition_fulfilled">Przynajmniej jedna wielka litera</li>
                   <li v-if="loginErrorType.numeric">Przynajmniej jedna cyfra</li>
-                  <li v-else style="text-decoration: line-through;">Przynajmniej jedna cyfra</li>
+                  <li v-else class="condition_fulfilled">Przynajmniej jedna cyfra</li>
                   <li v-if="loginErrorType.specialCharacter">Przynajmniej 1 znak specjalny</li>
-                  <li v-else style="text-decoration: line-through;">Przynajmniej 1 znak specjalny</li>
+                  <li v-else class="condition_fulfilled">Przynajmniej 1 znak specjalny</li>
                   <li v-if="loginErrorType.charactersNumber">Przynajmniej 8 znaków</li>
-                  <li v-else style="text-decoration: line-through;">Przynajmniej 8 znaków</li>
+                  <li v-else class="condition_fulfilled">Przynajmniej 8 znaków</li>
                 </ul>
               </template>
               <template #footer v-else>
@@ -123,5 +121,7 @@ export default {
 </script>
 
 <style scoped>
-
+.condition_fulfilled {
+  text-decoration: line-through;
+}
 </style>
