@@ -8,7 +8,7 @@
         <h1 class="py-3 text-center">Witam ponownie</h1>
         <VeeForm @submit="login" v-slot="{ errors }">
           <div class="p-fluid">
-            <div v-if="loginError" class="p-mb-5"> Error </div>
+            <div v-if="loginError" class="p-mb-5"> Error</div>
             <div class="flex flex-column field relative">
               <div class="mb-2">
                 <label class="mb-2 inline-block" for="name">E-mail</label>
@@ -106,17 +106,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import "assets/login";
+@import "assets/login";
 
-  .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
-  .p-fluid {
-    width: 300px;
-    margin: auto;
-  }
+.p-fluid {
+  width: 300px;
+  margin: auto;
+}
 </style>

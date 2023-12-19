@@ -1,25 +1,27 @@
 <template>
-    <div class="card">
-      <DataTable :value="testData" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]" tableStyle="min-width: 50rem">
-        <Column field="name" header="Name" style="width: 25%"></Column>
-        <Column field="country" header="Country" style="width: 25%"></Column>
-        <Column field="company" header="Company" style="width: 25%"></Column>
-        <Column field="status" header="Representative" style="width: 25%"></Column>
-      </DataTable>
+  <div class="card">
+    <div>
+      TEST TEST TEST
     </div>
+    <DataTable :value="testData" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]"
+        tableStyle="min-width: 50rem">
+      <Column field="name" header="Name" style="width: 25%"></Column>
+      <Column field="country" header="Country" style="width: 25%"></Column>
+      <Column field="company" header="Company" style="width: 25%"></Column>
+      <Column field="status" header="Representative" style="width: 25%"></Column>
+    </DataTable>
+  </div>
 </template>
 
 <script>
 // import { ref, onMounted } from 'vue';
 // import { CustomerService } from '@/service/CustomerService';
-//
+
 // onMounted(() => {
 //   CustomerService.getCustomersMedium().then((data) => (customers.value = data));
 // });
-//
-// const customers = ref();
 
-import {auth} from "@/util/Auth";
+// const customers = ref();
 
 export default {
 
@@ -27,30 +29,26 @@ export default {
 
   methods: {
 
-    logOut() {
-      auth.logout(this);
-    },
-
     edit() {
       this.$router.push("/edit-profile");
     },
 
-    editItem (item) {
+    editItem(item) {
       this.editedIndex = this.meets.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
     },
 
-    deleteItem (item) {
+    deleteItem(item) {
       this.editedIndex = this.meets.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
     },
 
-    deleteItemConfirm () {
+    deleteItemConfirm() {
     },
 
-    close () {
+    close() {
       this.dialog = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
@@ -58,7 +56,7 @@ export default {
       })
     },
 
-    closeDelete () {
+    closeDelete() {
       this.dialogDelete = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
@@ -66,7 +64,7 @@ export default {
       })
     },
 
-    closeInfo () {
+    closeInfo() {
       this.dialogInfo = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
@@ -74,17 +72,17 @@ export default {
       })
     },
 
-    save () {
+    save() {
     },
 
-    getData () {
+    getData() {
     },
 
-    saveDate (date) {
+    saveDate(date) {
       this.$refs.menu.save(date)
     },
 
-    getInfo (item) {
+    getInfo(item) {
       this.editedIndex = this.meets.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogInfo = true;
@@ -93,36 +91,36 @@ export default {
   },
 
   created() {
-    this.getData ();
+    this.getData();
 
   },
 
   computed: {
-    formTitle () {
+    formTitle() {
       return this.editedIndex === -1 ? 'New Meet' : 'Edit Meet'
     },
   },
 
   watch: {
-    dialog (val) {
+    dialog(val) {
       val || this.close()
     },
-    dialogDelete (val) {
+    dialogDelete(val) {
       val || this.closeDelete()
     },
-    menu (val) {
+    menu(val) {
       val && setTimeout(() => (this.activePicker = 'YEAR'))
     },
   },
 
-  data () {
+  data() {
     return {
       testData: [{
-          name: "Odin",
-          company: "Companyny",
-          conutry: "Lithuania",
-          status: "Active",
-        }, {
+        name: "Odin",
+        company: "Companyny",
+        conutry: "Lithuania",
+        status: "Active",
+      }, {
         name: "Edvin",
         company: "Google",
         conutry: "Estonia",
@@ -151,13 +149,13 @@ export default {
           sortable: true,
           value: 'name',
         },
-        { text: 'Creator\'s name', value: 'creatorName' },
-        { text: 'Creator\'s surname', value: 'creatorSurname' },
-        { text: 'Creation date', value: 'creationDate' },
-        { text: 'Last modification date', value: 'modificationDate' },
-        { text: 'Date', value: 'date' },
-        { text: 'Time', value: 'time'},
-        { text: 'Actions', value: 'actions', sortable: false },
+        {text: 'Creator\'s name', value: 'creatorName'},
+        {text: 'Creator\'s surname', value: 'creatorSurname'},
+        {text: 'Creation date', value: 'creationDate'},
+        {text: 'Last modification date', value: 'modificationDate'},
+        {text: 'Date', value: 'date'},
+        {text: 'Time', value: 'time'},
+        {text: 'Actions', value: 'actions', sortable: false},
       ],
       editedIndex: -1,
       editedItem: {

@@ -104,28 +104,27 @@ export default {
     register() {
       registerRequest({userDto: this.registerForm})
           .then(() => {
-              ToastUtils.addToast(this, {
-                  severity: "success",
-                  summary: "Sukces",
-                  detail: "Dziękujemy za rejestrację.",
-              });
-              this.$router.push({name: "login"});
+            ToastUtils.addToast(this, {
+              severity: "success",
+              summary: "Sukces",
+              detail: "Dziękujemy za rejestrację.",
+            });
+            this.$router.push({name: "login"});
           })
           .catch((error) => {
-            console.log(error);
-              if (error.response && error.response.status === 409) {
-                  ToastUtils.addToast(this, {
-                      severity: "error",
-                      summary: "Błąd",
-                      detail: "Użytkownik o podanym adresie e-mail już istnieje",
-                  });
-              } else {
-                  ToastUtils.addToast(this, {
-                      severity: "error",
-                      summary: "Błąd",
-                      detail: "Wystąpił nieoczekiwany błąd, skontaktuj się z administratorem systemu",
-                  });
-              }
+            if (error.response && error.response.status === 409) {
+              ToastUtils.addToast(this, {
+                severity: "error",
+                summary: "Błąd",
+                detail: "Użytkownik o podanym adresie e-mail już istnieje",
+              });
+            } else {
+              ToastUtils.addToast(this, {
+                severity: "error",
+                summary: "Błąd",
+                detail: "Wystąpił nieoczekiwany błąd, skontaktuj się z administratorem systemu",
+              });
+            }
           });
     },
 
