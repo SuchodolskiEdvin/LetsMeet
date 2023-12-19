@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import pw.proj.letsmeet.enums.SystemRole;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -27,10 +26,6 @@ public class User extends AbstractEntity implements UserDetails {
 
 	@Column(nullable = false, length = 128)
 	private String password;
-
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false, length = 16)
-	private SystemRole systemRole;
 
 	@Column(length = 128)
 	private String firstName;

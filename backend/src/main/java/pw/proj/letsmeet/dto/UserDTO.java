@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pw.proj.letsmeet.enums.SystemRole;
 
 @Getter
 @Setter
@@ -19,8 +18,6 @@ public class UserDTO {
 	private String lastName;
 
 	private String email;
-
-	private SystemRole systemRole;
 
 	private String password;
 

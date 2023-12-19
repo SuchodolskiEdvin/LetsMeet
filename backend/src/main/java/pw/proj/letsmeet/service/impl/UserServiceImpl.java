@@ -59,11 +59,10 @@ class UserServiceImpl implements UserService {
 		try {
 			User user = this.userDAO.findByEmail(email);
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-			String token = jwtTokenProvider.createToken(email, Collections.singletonList(user.getSystemRole().toString()));
+			String token = jwtTokenProvider.createToken(email);
 			Map<Object, Object> model = new HashMap<>();
 			model.put("email", email);
 			model.put("token", token);
-			model.put("role", user.getSystemRole());
 			model.put("fullName", user.getFullName());
 			return ok(model);
 		} catch (AuthenticationException e) {
