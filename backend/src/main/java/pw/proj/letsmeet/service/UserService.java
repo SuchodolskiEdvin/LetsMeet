@@ -23,4 +23,6 @@ public interface UserService {
 	UserDTO getUserDTO(Long id);
 
 	List<UserDTO> toSelectUserValues(String query);
+
+	List<UserDTO> getParticipiants();
 }

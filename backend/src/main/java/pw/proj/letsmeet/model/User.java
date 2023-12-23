@@ -39,7 +39,7 @@ public class User extends AbstractEntity implements UserDetails {
 	@Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
 	private boolean deleted;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "participants")
     private Set<Meet> meets;
 
 	// **********************************************************************

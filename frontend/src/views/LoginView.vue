@@ -11,7 +11,7 @@
             <div v-if="loginError" class="p-mb-5"> Error</div>
             <div class="flex flex-column field relative">
               <div class="mb-2">
-                <label class="mb-2 inline-block" for="name">E-mail</label>
+                <label class="mb-2 inline-block" for="email">E-mail</label>
                 <InputText name="login" type="text" v-model="loginForm.login"/>
               </div>
               <div class="p-fluid custom-password relative field">

@@ -161,6 +161,13 @@ class UserServiceImpl implements UserService {
 	public List<UserDTO> toSelectUserValues(String query) {
 		List<User> users = userDAO.findByQuery("%" + query + "%");
 
-		return users.stream().map(u -> new UserDTO(u.getId(), u.getEmail())).collect(Collectors.toList());
+		return users.stream().map(u -> new UserDTO(u.getId(), u.getEmail(), u.getFirstName() + " " + u.getLastName())).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<UserDTO> getParticipiants() {
+		return userDAO.findAll().stream()
+				.map(u -> new UserDTO(u.getId(), u.getEmail(), u.getFullName()))
+				.collect(Collectors.toList());
 	}
 }

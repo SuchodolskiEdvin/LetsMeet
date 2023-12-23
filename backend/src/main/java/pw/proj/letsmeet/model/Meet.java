@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
@@ -19,6 +20,15 @@ public class Meet extends AbstractEntity {
     @Column
     private String name;
 
+    @Column
+    private LocalDate date;
+
+    @Column
+    private String time;
+
+    @OneToOne
+    private User creator;
+
     @ManyToMany
-    private Set<User> users;
+    private Set<User> participants;
 }

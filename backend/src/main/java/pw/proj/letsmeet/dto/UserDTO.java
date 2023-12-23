@@ -17,12 +17,15 @@ public class UserDTO {
 
 	private String lastName;
 
+	private String fullName;
+
 	private String email;
 
 	private String password;
 
-	public UserDTO (Long id, String email) {
+	public UserDTO (Long id, String email, String fullName) {
 		this.id = id;
 		this.email = email;
+		this.fullName = fullName;
 	}
 }

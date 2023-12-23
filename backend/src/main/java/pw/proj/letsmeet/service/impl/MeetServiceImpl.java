@@ -28,17 +28,21 @@ class MeetServiceImpl implements MeetService {
 	private EntityManager entityManager;
 
 	@Override
-	public List<MeetDTO> searchMeet(MeetSearchCriteria MeetSearchCriteria) {
-		List<Meet> Meets = MeetSearchCriteria.load(entityManager);
+	public List<MeetDTO> searchMeet(MeetSearchCriteria meetSearchCriteria) {
+		List<Meet> meets = meetSearchCriteria.load(entityManager);
 
-		return Meets.stream()
-				.map(Meet -> modelMapper.map(Meet, MeetDTO.class))
+		return meets.stream()
+				.map(meet -> {
+					MeetDTO meetDTO = modelMapper.map(meet, MeetDTO.class);
+					meetDTO.setCreatorsFullName(meet.getCreator().getFullName());
+					return meetDTO;
+				})
 				.collect(Collectors.toList());
 	}
 
 	@Override
-	public long searchMeetCount(MeetSearchCriteria MeetSearchCriteria) {
-		return MeetSearchCriteria.count(entityManager);
+	public long searchMeetCount(MeetSearchCriteria meetSearchCriteria) {
+		return meetSearchCriteria.count(entityManager);
 	}
 
 	@Transactional

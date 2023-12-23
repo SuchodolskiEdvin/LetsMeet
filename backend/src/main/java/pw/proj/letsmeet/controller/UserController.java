@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pw.proj.letsmeet.dto.UserDTO;
-import pw.proj.letsmeet.enums.SystemRole;
 import pw.proj.letsmeet.request.PasswordChangeRequest;
 import pw.proj.letsmeet.request.PasswordRemindRequest;
 import pw.proj.letsmeet.search.criteria.UserSearchCriteria;
@@ -27,11 +26,6 @@ public class UserController {
 	@PostMapping("/search/user/count")
 	public ResponseEntity<?> searchUserCount(@RequestBody UserSearchCriteria searchCriteria) {
 		return ResponseEntity.ok(userService.searchUserCount(searchCriteria));
-	}
-
-	@GetMapping("/user/roles")
-	public ResponseEntity<?> getUserRoles() {
-		return ResponseEntity.ok(SystemRole.toSelectEnumValues());
 	}
 
 	@PostMapping("/user/password/remind")
@@ -68,8 +62,13 @@ public class UserController {
 	}
 
 	@GetMapping("/users")
-	public ResponseEntity<?> getUsers(@RequestParam String query) {
-		return ResponseEntity.ok(userService.toSelectUserValues(query));
+	public ResponseEntity<?> getUsers() {
+		return ResponseEntity.ok(userService.getParticipiants());
+	}
+
+	@GetMapping("/participants")
+	public ResponseEntity<?> getParticipants() {
+		return ResponseEntity.ok(userService.getParticipiants());
 	}
 
 }

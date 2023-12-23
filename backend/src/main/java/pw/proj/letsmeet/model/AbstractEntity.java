@@ -6,7 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @MappedSuperclass
 @Getter
@@ -19,10 +19,10 @@ public class AbstractEntity {
 	protected Long id;
 
 	@CreationTimestamp
-	protected LocalDateTime creationDate;
+	protected LocalDate creationDate;
 
 	@UpdateTimestamp
-	protected LocalDateTime modificationDate;
+	protected LocalDate modificationDate;
 
 	@Version
 	protected int version;

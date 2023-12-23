@@ -1,10 +1,7 @@
 <template>
-  <Menubar :model="items">
+  <Menubar :model="headers">
     <template #start>
-      <svg width="35" height="40" viewBox="0 0 35 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-2rem">
-        <path d="..." fill="var(--primary-color)"/>
-        <path d="..." fill="var(--text-color)"/>
-      </svg>
+<!--      Potencjalna ikonka aplikacji  -->
     </template>
     <template #item="{ item, props, hasSubmenu, root }">
       <router-link :to="item.url" class="flex align-items-center" v-bind="props.action">
@@ -32,19 +29,20 @@
 <script>
 import Menubar from "primevue/menubar";
 import Avatar from "primevue/avatar";
+import Badge from "primevue/badge";
 
 export default {
   name: "MenuBar",
-  components: {Menubar, Avatar},
+  components: {Menubar, Badge, Avatar},
 
   data() {
     return {
-      items: [{
+      headers: [{
         label: 'Home',
         icon: 'pi pi-home',
         url: '/home'
       }, {
-        label: 'EditProfile',
+        label: 'Profile',
         icon: 'pi pi-user',
         url: '/user/edit'
       }],
@@ -53,6 +51,13 @@ export default {
         icon: 'pi pi-sign-out'
       }
     };
+  },
+
+  methods: {
+    logout() {
+      localStorage.removeItem("token");
+      this.$router.push({name: "login"});
+    },
   },
 
 }

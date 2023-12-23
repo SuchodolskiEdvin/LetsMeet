@@ -1,98 +1,252 @@
 <template>
   <div class="card">
-    <div>
-      TEST TEST TEST
-    </div>
-    <DataTable :value="testData" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]"
-        tableStyle="min-width: 50rem">
-      <Column field="name" header="Name" style="width: 25%"></Column>
-      <Column field="country" header="Country" style="width: 25%"></Column>
-      <Column field="company" header="Company" style="width: 25%"></Column>
-      <Column field="status" header="Representative" style="width: 25%"></Column>
+    <Toolbar class="mb-4">
+      <template #end>
+        <Button label="New" icon="pi pi-plus" severity="success" class="mr-2" @click="createMeet"/>
+      </template>
+    </Toolbar>
+
+    <DataTable :value="meets" paginator stripedRows :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]"
+        lazy tableStyle="min-width: 50rem" v-model:rows="searchCriteria.page.limit"
+        v-model:first="searchCriteria.page.offset" :total-records="totalRecords"
+        @page="onPage" @sort="onPage">
+      <Column v-for="col of columns" :key="col.value" :field="col.value" :header="col.text"/>
+      <Column style="min-width: 8rem" header="Actions">
+        <template #body="slotProps">
+          <Button icon="pi pi-info-circle" rounded severity="info" class="mr-2" @click="getMeetInfo(slotProps.data)"/>
+          <Button icon="pi pi-pencil" rounded class="mr-2" @click="editMeet(slotProps.data)"/>
+          <Button icon="pi pi-trash" rounded severity="danger" @click="deleteMeet(slotProps.data)"/>
+        </template>
+      </Column>
     </DataTable>
+
+    <Dialog v-model:visible="showAdditionalInformationMeetDialog" :style="{width: '450px'}"
+        header="Informacja o spotkaniu" :modal="true">
+      <div class="confirmation-content">
+        <h2>Lista uczestników</h2>
+        <ul>
+          <li v-for="participant in participants" :key="participant.id">
+            {{ participant.fullName }} (email: {{ participant.email }})
+          </li>
+        </ul>
+      </div>
+      <template #footer>
+        <Button label="OK" icon="pi pi-check" text @click="closeShowAdditionalInformationMeetDialog"/>
+      </template>
+    </Dialog>
+
+    <Dialog v-model:visible="createOrEditMeetDialog" :style="{width: '450px'}" header="Product Details" :modal="true"
+        class="p-fluid">
+      <VeeForm>
+        <div class="field">
+          <label for="name">Nazwa</label>
+          <InputText id="name" v-model.trim="selectedMeet.name" required="true" autofocus/>
+        </div>
+        <div class="field flex-auto">
+          <label for="date">Data i godzina spotkania</label>
+          <Calendar id="date" v-model="selectedMeet.date" :class="{ 'p-invalid': errorMessage }" aria-describedby="date-error" />
+        </div>
+        <div class="field flex-auto">
+          <label for="time" class="block mb-2">Czas</label>
+          <Calendar id="time" v-model="selectedMeet.time" timeOnly />
+        </div>
+      </VeeForm>
+
+      <div class="field">
+        <label for="participants" class="mb-3">Uczestnicy spotkania</label>
+        <Dropdown id="participants" v-model="participants" :options="statuses" optionLabel="label"
+            placeholder="Add participants">
+          <!--          <template #value="slotProps">-->
+          <!--            <div v-if="slotProps.value && slotProps.value.value">-->
+          <!--              <Tag :value="slotProps.value.value" :severity="getStatusLabel(slotProps.value.label)"/>-->
+          <!--            </div>-->
+          <!--            <div v-else-if="slotProps.value && !slotProps.value.value">-->
+          <!--              <Tag :value="slotProps.value" :severity="getStatusLabel(slotProps.value)"/>-->
+          <!--            </div>-->
+          <!--            <span v-else>-->
+          <!--							{{ slotProps.placeholder }}-->
+          <!--						</span>-->
+          <!--          </template>-->
+        </Dropdown>
+      </div>
+
+      <template #footer>
+        <Button label="Anuluj" icon="pi pi-times" text @click="closeCreateOrEditMeetDialog"/>
+        <Button label="Zapisz" icon="pi pi-check" text @click="saveMeet"/>
+      </template>
+    </Dialog>
+
+    <Dialog v-model:visible="deleteMeetDialog" :style="{width: '450px'}" header="Confirm" :modal="true">
+      <div class="confirmation-content">
+        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"/>
+        <span v-if="selectedMeet">Czy na pewno chcesz usunąć spotkanie <b>{{ selectedMeet.name }}</b>?</span>
+      </div>
+      <template #footer>
+        <Button label="Nie" icon="pi pi-times" text @click="closeDeleteMeetDialog"/>
+        <Button label="Tak" icon="pi pi-check" text @click="deleteMeet"/>
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script>
-// import { ref, onMounted } from 'vue';
-// import { CustomerService } from '@/service/CustomerService';
-
-// onMounted(() => {
-//   CustomerService.getCustomersMedium().then((data) => (customers.value = data));
-// });
-
-// const customers = ref();
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import Toolbar from "primevue/toolbar";
+import Button from "primevue/button";
+import Dropdown from "primevue/dropdown";
+import Calendar from "primevue/calendar";
+import {Form as VeeForm} from "vee-validate";
+import {
+  getUsersUsingGET as getUsers,
+  searchMeetCountUsingPOST as searchMeetCount,
+  searchMeetUsingPOST as searchMeets,
+  createOrUpdateMeetUsingPOST as createOrEditMeet,
+} from "@/swagger/vue-api-client"
+import {ToastUtils} from "@/util/ToastUtils";
 
 export default {
-
   name: "MainView",
+  components: {DataTable, Column, Toolbar, Button, Dropdown, Calendar, VeeForm},
+
+  data() {
+    return {
+      columns: [
+        {text: 'Name', align: 'start', sortable: true, value: 'name',},
+        {text: 'Creator', value: 'creatorsFullName'},
+        {text: 'Creation date', value: 'creationDate'},
+        {text: 'Last modification date', value: 'modificationDate'},
+        {text: 'Date', value: 'date'},
+        {text: 'Time', value: 'time'},
+      ],
+      meets: [],
+      totalRecords: 0,
+      showAdditionalInformationMeetDialog: false,
+      createOrEditMeetDialog: false,
+      deleteMeetDialog: false,
+      searchCriteria: {
+        page: {
+          limit: 10,
+          offset: 0,
+          sortField: null,
+          sortOrder: null,
+        },
+      },
+      selectedMeet: {},
+      participants: [],
+    }
+  },
 
   methods: {
-
-    edit() {
-      this.$router.push("/edit-profile");
+    getAllParticipants() {
+      getUsers()
+          .then((response) => {
+            this.participants = response.data;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
     },
 
-    editItem(item) {
-      this.editedIndex = this.meets.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.dialog = true
+    createMeet() {
+      this.createOrEditMeetDialog = true;
+      this.selectedMeet = this.clearSelectedMeet();
     },
 
-    deleteItem(item) {
-      this.editedIndex = this.meets.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.dialogDelete = true
+    getMeetInfo(meet) {
+      this.showAdditionalInformationMeetDialog = true;
+      console.log(meet);
     },
 
-    deleteItemConfirm() {
+    editMeet(meet) {
+      this.createOrEditMeetDialog = true;
+      this.selectedMeet = meet;
+      console.log(meet);
     },
 
-    close() {
-      this.dialog = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
+    deleteMeet(meet) {
+      this.deleteMeetDialog = true;
+      console.log(meet);
     },
 
-    closeDelete() {
-      this.dialogDelete = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
+    closeShowAdditionalInformationMeetDialog() {
+      this.showAdditionalInformationMeetDialog = false;
     },
 
-    closeInfo() {
-      this.dialogInfo = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
+    closeCreateOrEditMeetDialog() {
+      this.createOrEditMeetDialog = false;
     },
 
-    save() {
+    closeDeleteMeetDialog() {
+      this.deleteMeetDialog = false;
     },
 
-    getData() {
+    saveMeet() {
+      let meet;
+      let detail;
+      if (this.selectedMeet.id != null) {
+        meet = { ...this.meets.find((item) => item.id = this.selectedMeet.id)};
+        detail = "Zapisano dane spotkania";
+      } else {
+        meet = this.clearSelectedMeet();
+        detail = "Utworzono nowe spotkanie";
+      }
+
+      createOrEditMeet({meetDTO: meet}).then(() => {
+        // this.meets.up
+        this.createOrEditMeetDialog = false;
+        ToastUtils.addToast(this, {
+          severity: "success",
+          summary: "Sukces",
+          detail: detail,
+        });
+      }).catch((error) => {
+        console.log(error)}
+      );
     },
 
-    saveDate(date) {
-      this.$refs.menu.save(date)
+    clearSelectedMeet() {
+      return {
+        id: null,
+        name: "",
+        date: "",
+        time: ""
+      }
     },
 
-    getInfo(item) {
-      this.editedIndex = this.meets.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialogInfo = true;
-    }
+    search() {
+      this.onPage(this.getFirstPage());
+      this.updateTotalRecords();
+    },
 
+    onPage(event) {
+      this.searchCriteria.page.offset = event.first;
+      this.searchCriteria.page.limit = event.rows;
+      this.searchCriteria.page.sortField = event.sortField;
+      this.searchCriteria.page.sortOrder = event.sortOrder;
+
+      searchMeets({searchCriteria: this.searchCriteria}).then((response) => {
+        this.meets = response.data;
+      });
+    },
+
+    updateTotalRecords() {
+      searchMeetCount({searchCriteria: this.searchCriteria}).then((response) => {
+        this.totalRecords = response.data;
+      });
+    },
+
+    getFirstPage() {
+      return {
+        first: this.searchCriteria.page.offset,
+        rows: this.searchCriteria.page.limit,
+      };
+    },
   },
 
   created() {
-    this.getData();
-
+    this.search();
+    this.getAllParticipants();
   },
 
   computed: {
@@ -102,90 +256,19 @@ export default {
   },
 
   watch: {
-    dialog(val) {
-      val || this.close()
-    },
-    dialogDelete(val) {
-      val || this.closeDelete()
-    },
-    menu(val) {
-      val && setTimeout(() => (this.activePicker = 'YEAR'))
-    },
+    // dialog(val) {
+    //   val || this.close()
+    // },
+    // dialogDelete(val) {
+    //   val || this.closeDelete()
+    // },
+    // menu(val) {
+    //   val && setTimeout(() => (this.activePicker = 'YEAR'))
+    // },
   },
 
-  data() {
-    return {
-      testData: [{
-        name: "Odin",
-        company: "Companyny",
-        conutry: "Lithuania",
-        status: "Active",
-      }, {
-        name: "Edvin",
-        company: "Google",
-        conutry: "Estonia",
-        status: "Blocked",
-      }, {
-        name: "Martyna",
-        company: "Goldman Suchs",
-        conutry: "Poland",
-        status: "Not active",
-      }],
-      e6: [],
-      e7: [],
-      dialog: false,
-      dialogDelete: false,
-      dialogInfo: false,
-      meets: [],
-      participants: [{
-        name: '',
-        surname: '',
-        email: '',
-      }],
-      headers: [
-        {
-          text: 'Name',
-          align: 'start',
-          sortable: true,
-          value: 'name',
-        },
-        {text: 'Creator\'s name', value: 'creatorName'},
-        {text: 'Creator\'s surname', value: 'creatorSurname'},
-        {text: 'Creation date', value: 'creationDate'},
-        {text: 'Last modification date', value: 'modificationDate'},
-        {text: 'Date', value: 'date'},
-        {text: 'Time', value: 'time'},
-        {text: 'Actions', value: 'actions', sortable: false},
-      ],
-      editedIndex: -1,
-      editedItem: {
-        id: '',
-        name: '',
-        date: '',
-        time: '',
-        participants: [],
-      },
-      defaultItem: {
-        id: '',
-        name: '',
-        date: '',
-        time: '',
-        participants: [],
-      },
-      activePicker: null,
-      menu: false,
-      users: [{
-        name: '',
-        surname: '',
-        email: '',
-      }],
-    }
-  },
 }
 </script>
 
 <style scoped>
-.v-toolbar--prominent:not(.v-toolbar--bottom) .v-toolbar__title {
-  align-self: flex-start;
-}
 </style>
