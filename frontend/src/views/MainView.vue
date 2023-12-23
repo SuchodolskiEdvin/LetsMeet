@@ -25,7 +25,7 @@
       <div class="confirmation-content">
         <h2>Lista uczestników</h2>
         <ul>
-          <li v-for="participant in participants" :key="participant.id">
+          <li v-for="participant in this.editedMeet.participants" :key="participant.id">
             {{ participant.fullName }} (email: {{ participant.email }})
           </li>
         </ul>
@@ -40,15 +40,16 @@
       <VeeForm>
         <div class="field">
           <label for="name">Nazwa</label>
-          <InputText id="name" v-model.trim="selectedMeet.name" required="true" autofocus/>
+          <InputText id="name" v-model.trim="editedMeet.name" required="true" autofocus/>
         </div>
         <div class="field flex-auto">
           <label for="date">Data i godzina spotkania</label>
-          <Calendar id="date" v-model="selectedMeet.date" :class="{ 'p-invalid': errorMessage }" aria-describedby="date-error" />
+          <Calendar id="date" v-model="editedMeet.date" :class="{ 'p-invalid': errorMessage }"
+              aria-describedby="date-error"/>
         </div>
         <div class="field flex-auto">
           <label for="time" class="block mb-2">Czas</label>
-          <Calendar id="time" v-model="selectedMeet.time" timeOnly />
+          <Calendar id="time" v-model="editedMeet.time" timeOnly/>
         </div>
       </VeeForm>
 
@@ -79,10 +80,10 @@
     <Dialog v-model:visible="deleteMeetDialog" :style="{width: '450px'}" header="Confirm" :modal="true">
       <div class="confirmation-content">
         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"/>
-        <span v-if="selectedMeet">Czy na pewno chcesz usunąć spotkanie <b>{{ selectedMeet.name }}</b>?</span>
+        <span v-if="editedMeet">Czy na pewno chcesz usunąć spotkanie <b>{{ editedMeet.name }}</b>?</span>
       </div>
       <template #footer>
-        <Button label="Nie" icon="pi pi-times" text @click="closeDeleteMeetDialog"/>
+        <Button label="Nie" icon="pi pi-times" text @click="deleteItemConfirm"/>
         <Button label="Tak" icon="pi pi-check" text @click="deleteMeet"/>
       </template>
     </Dialog>
@@ -102,6 +103,8 @@ import {
   searchMeetCountUsingPOST as searchMeetCount,
   searchMeetUsingPOST as searchMeets,
   createOrUpdateMeetUsingPOST as createOrEditMeet,
+  deleteMeetUsingDELETE as deleteMeet,
+  getParticipantsUsingGET as getParticipants,
 } from "@/swagger/vue-api-client"
 import {ToastUtils} from "@/util/ToastUtils";
 
@@ -132,7 +135,14 @@ export default {
           sortOrder: null,
         },
       },
-      selectedMeet: {},
+      editedMeetIndex: -1,
+      editedMeet: {
+        id: '',
+        name: '',
+        date: '',
+        time: '',
+        participants: [],
+      },
       participants: [],
     }
   },
@@ -150,62 +160,78 @@ export default {
 
     createMeet() {
       this.createOrEditMeetDialog = true;
-      this.selectedMeet = this.clearSelectedMeet();
+      this.editedMeet = this.clearEditedMeet();
     },
 
-    getMeetInfo(meet) {
+    getMeetInfo(item) {
+      this.editedMeetIndex = this.meets.indexOf(item);
+      this.editedMeet = Object.assign({}, item);
+      getParticipants({id :this.editedMeet.id}).then((response) => {
+        this.editedMeet.participants = response.data;
+      }).catch((error) => {
+        console.log(error);
+      })
       this.showAdditionalInformationMeetDialog = true;
-      console.log(meet);
     },
 
-    editMeet(meet) {
+    editMeet(item) {
+      this.editedMeetIndex = this.meets.indexOf(item);
+      this.editedMeet = Object.assign({}, item);
       this.createOrEditMeetDialog = true;
-      this.selectedMeet = meet;
-      console.log(meet);
     },
 
-    deleteMeet(meet) {
+    deleteMeet(item) {
+      this.editedIndex = this.meets.indexOf(item);
+      this.editedMeet = Object.assign({}, item);
       this.deleteMeetDialog = true;
-      console.log(meet);
+    },
+
+    deleteItemConfirm() {
+      deleteMeet({id: this.editedMeet.id}).then(() => {
+        this.search();
+        this.closeDeleteMeetDialog();
+      }).catch((error) => {
+        console.log(error)
+      });
     },
 
     closeShowAdditionalInformationMeetDialog() {
+      this.editedMeet = Object.assign({}, this.clearEditedMeet())
+      this.editedIndex = -1
       this.showAdditionalInformationMeetDialog = false;
     },
 
     closeCreateOrEditMeetDialog() {
+      this.editedMeet = Object.assign({}, this.clearEditedMeet())
+      this.editedIndex = -1
       this.createOrEditMeetDialog = false;
     },
 
     closeDeleteMeetDialog() {
+      this.editedMeet = Object.assign({}, this.clearEditedMeet())
+      this.editedIndex = -1
       this.deleteMeetDialog = false;
     },
 
     saveMeet() {
-      let meet;
-      let detail;
-      if (this.selectedMeet.id != null) {
-        meet = { ...this.meets.find((item) => item.id = this.selectedMeet.id)};
-        detail = "Zapisano dane spotkania";
-      } else {
-        meet = this.clearSelectedMeet();
-        detail = "Utworzono nowe spotkanie";
-      }
-
-      createOrEditMeet({meetDTO: meet}).then(() => {
-        // this.meets.up
+      createOrEditMeet({meetDTO: this.editedMeet}).then(() => {
+        const detailMessage = this.editedIndex > -1 ? "Zapisano dane spotkania" : "Utworzono nowe spotkanie";
         this.createOrEditMeetDialog = false;
+        this.search();
         ToastUtils.addToast(this, {
           severity: "success",
           summary: "Sukces",
-          detail: detail,
+          detail: detailMessage,
         });
       }).catch((error) => {
-        console.log(error)}
+            console.log(error)
+          }
       );
+
+      this.closeCreateOrEditMeetDialog();
     },
 
-    clearSelectedMeet() {
+    clearEditedMeet() {
       return {
         id: null,
         name: "",
