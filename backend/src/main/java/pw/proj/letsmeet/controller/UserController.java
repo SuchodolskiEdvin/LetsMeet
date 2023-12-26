@@ -63,12 +63,6 @@ public class UserController {
 
 	@GetMapping("/users")
 	public ResponseEntity<?> getUsers() {
-		return ResponseEntity.ok(userService.getParticipiants());
+		return ResponseEntity.ok(userService.getAllUsers());
 	}
-
-	@GetMapping("/participants")
-	public ResponseEntity<?> getParticipants() {
-		return ResponseEntity.ok(userService.getParticipiants());
-	}
-
 }

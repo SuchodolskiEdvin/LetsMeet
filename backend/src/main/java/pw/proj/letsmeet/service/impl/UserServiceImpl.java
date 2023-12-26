@@ -165,9 +165,10 @@ class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<UserDTO> getParticipiants() {
+	public List<UserDTO> getAllUsers() {
 		return userDAO.findAll().stream()
-				.map(u -> new UserDTO(u.getId(), u.getEmail(), u.getFullName()))
+				.map(user -> modelMapper.map(user, UserDTO.class))
+				.peek(user -> user.setPassword(null))
 				.collect(Collectors.toList());
 	}
 }

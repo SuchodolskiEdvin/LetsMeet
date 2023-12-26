@@ -24,5 +24,5 @@ public interface UserService {
 
 	List<UserDTO> toSelectUserValues(String query);
 
-	List<UserDTO> getParticipiants();
+	List<UserDTO> getAllUsers();
 }

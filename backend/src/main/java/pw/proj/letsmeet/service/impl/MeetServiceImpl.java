@@ -2,11 +2,14 @@ package pw.proj.letsmeet.service.impl;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pw.proj.letsmeet.dao.MeetDAO;
 import pw.proj.letsmeet.dto.MeetDTO;
+import pw.proj.letsmeet.dto.UserDTO;
 import pw.proj.letsmeet.model.Meet;
+import pw.proj.letsmeet.model.User;
 import pw.proj.letsmeet.search.criteria.MeetSearchCriteria;
 import pw.proj.letsmeet.service.MeetService;
 
@@ -30,11 +33,14 @@ class MeetServiceImpl implements MeetService {
 	@Override
 	public List<MeetDTO> searchMeet(MeetSearchCriteria meetSearchCriteria) {
 		List<Meet> meets = meetSearchCriteria.load(entityManager);
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 		return meets.stream()
+				.filter(meet -> meet.getParticipants().contains(user))
 				.map(meet -> {
 					MeetDTO meetDTO = modelMapper.map(meet, MeetDTO.class);
 					meetDTO.setCreatorsFullName(meet.getCreator().getFullName());
+					meetDTO.setParticipantsId(meet.getParticipants().stream().map(User::getId).toList());
 					return meetDTO;
 				})
 				.collect(Collectors.toList());
@@ -52,8 +58,10 @@ class MeetServiceImpl implements MeetService {
 
 		if (meetDTO.getId() != null) {
 			meet = meetDAO.getOne(meetDTO.getId());
+			meet.getParticipants().clear();
+		} else {
+			meet.setCreator((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 		}
-
 		modelMapper.map(meetDTO, meet);
 
 		meetDAO.save(meet);
@@ -67,9 +75,13 @@ class MeetServiceImpl implements MeetService {
 
 	@Override
 	public MeetDTO getMeetDTO(Long id) {
-		MeetDTO meetDTO = modelMapper.map(meetDAO.getOne(id), MeetDTO.class);
-
-		return meetDTO;
+		return modelMapper.map(meetDAO.getOne(id), MeetDTO.class);
 	}
 
+	@Override
+	public List<UserDTO> getParticipiants(Long id) {
+		return meetDAO.findUsersByMeetId(id).stream()
+				.map(u -> new UserDTO(u.getId(), u.getEmail(), u.getFullName()))
+				.collect(Collectors.toList());
+	}
 }

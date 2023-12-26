@@ -1,6 +1,7 @@
 package pw.proj.letsmeet.service;
 
 import pw.proj.letsmeet.dto.MeetDTO;
+import pw.proj.letsmeet.dto.UserDTO;
 import pw.proj.letsmeet.search.criteria.MeetSearchCriteria;
 
 import java.util.List;
@@ -17,4 +18,5 @@ public interface MeetService {
 
 	MeetDTO getMeetDTO(Long id);
 
+	List<UserDTO> getParticipiants(Long id);
 }

@@ -43,32 +43,20 @@
           <InputText id="name" v-model.trim="editedMeet.name" required="true" autofocus/>
         </div>
         <div class="field flex-auto">
-          <label for="date">Data i godzina spotkania</label>
-          <Calendar id="date" v-model="editedMeet.date" :class="{ 'p-invalid': errorMessage }"
+          <label for="date">Data</label>
+          <Calendar id="date" v-model="editedMeet.date" :minDate="new Date()"
               aria-describedby="date-error"/>
         </div>
         <div class="field flex-auto">
           <label for="time" class="block mb-2">Czas</label>
-          <Calendar id="time" v-model="editedMeet.time" timeOnly/>
+          <Calendar id="time" v-model="editedMeet.time" time-only hourFormat="24"/>
         </div>
       </VeeForm>
 
       <div class="field">
         <label for="participants" class="mb-3">Uczestnicy spotkania</label>
-        <Dropdown id="participants" v-model="participants" :options="statuses" optionLabel="label"
-            placeholder="Add participants">
-          <!--          <template #value="slotProps">-->
-          <!--            <div v-if="slotProps.value && slotProps.value.value">-->
-          <!--              <Tag :value="slotProps.value.value" :severity="getStatusLabel(slotProps.value.label)"/>-->
-          <!--            </div>-->
-          <!--            <div v-else-if="slotProps.value && !slotProps.value.value">-->
-          <!--              <Tag :value="slotProps.value" :severity="getStatusLabel(slotProps.value)"/>-->
-          <!--            </div>-->
-          <!--            <span v-else>-->
-          <!--							{{ slotProps.placeholder }}-->
-          <!--						</span>-->
-          <!--          </template>-->
-        </Dropdown>
+        <MultiSelect v-model="editedMeet.participants" :options="participants" optionLabel="email" filter placeholder="Wybierz uczestników"
+          :maxSelectedLabels="3" class="w-full" />
       </div>
 
       <template #footer>
@@ -95,7 +83,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Toolbar from "primevue/toolbar";
 import Button from "primevue/button";
-import Dropdown from "primevue/dropdown";
+import MultiSelect from "primevue/multiselect";
 import Calendar from "primevue/calendar";
 import {Form as VeeForm} from "vee-validate";
 import {
@@ -110,7 +98,7 @@ import {ToastUtils} from "@/util/ToastUtils";
 
 export default {
   name: "MainView",
-  components: {DataTable, Column, Toolbar, Button, Dropdown, Calendar, VeeForm},
+  components: {DataTable, Column, Toolbar, Button, MultiSelect, Calendar, VeeForm},
 
   data() {
     return {
@@ -166,7 +154,7 @@ export default {
     getMeetInfo(item) {
       this.editedMeetIndex = this.meets.indexOf(item);
       this.editedMeet = Object.assign({}, item);
-      getParticipants({id :this.editedMeet.id}).then((response) => {
+      getParticipants({id: this.editedMeet.id}).then((response) => {
         this.editedMeet.participants = response.data;
       }).catch((error) => {
         console.log(error);
@@ -177,6 +165,7 @@ export default {
     editMeet(item) {
       this.editedMeetIndex = this.meets.indexOf(item);
       this.editedMeet = Object.assign({}, item);
+      this.editedMeet.participants = this.participants.filter(item => this.editedMeet.participantsId.includes(item.id));
       this.createOrEditMeetDialog = true;
     },
 
@@ -214,7 +203,20 @@ export default {
     },
 
     saveMeet() {
-      createOrEditMeet({meetDTO: this.editedMeet}).then(() => {
+      // Konwertowanie daty
+      if (typeof this.editedMeet.date === 'object') {
+        this.editedMeet.date = `${this.editedMeet.date.getFullYear()}-${(this.editedMeet.date.getMonth() + 1).toString().padStart(2, '0')}-${this.editedMeet.date.getDate().toString().padStart(2, '0')}`;
+      }
+
+      // Wybranie godziny z daty
+      if (typeof this.editedMeet.time === "object") {
+        const hours = this.editedMeet.time.getHours().toString();
+        const minutes = this.editedMeet.time.getMinutes().toString();
+        this.editedMeet.time = hours + ":" + minutes;
+      }
+
+      console.log(this.editedMeet.date);
+      createOrEditMeet({meetDto: this.editedMeet}).then(() => {
         const detailMessage = this.editedIndex > -1 ? "Zapisano dane spotkania" : "Utworzono nowe spotkanie";
         this.createOrEditMeetDialog = false;
         this.search();
@@ -254,6 +256,7 @@ export default {
       searchMeets({searchCriteria: this.searchCriteria}).then((response) => {
         this.meets = response.data;
       });
+
     },
 
     updateTotalRecords() {

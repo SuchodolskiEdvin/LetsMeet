@@ -44,4 +44,9 @@ public class MeetController {
 		return ResponseEntity.ok().build();
 	}
 
+	@GetMapping("/meet/participants/{id}")
+	public ResponseEntity<?> getParticipants(@PathVariable("id") Long id) {
+		return ResponseEntity.ok(meetService.getParticipiants(id));
+	}
+
 }
