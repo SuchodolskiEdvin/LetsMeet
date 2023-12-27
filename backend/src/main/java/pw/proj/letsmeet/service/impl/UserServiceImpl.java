@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -151,6 +152,16 @@ class UserServiceImpl implements UserService {
 	public UserDTO getUserDTO(Long id) {
 		User user = userDAO.findById(id).orElseThrow(
 				() -> new RuntimeException("User with given id has not been found"));
+		UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+		userDTO.setPassword(null);
+
+		return userDTO;
+	}
+
+	@Override
+	public UserDTO getLoggedUser() {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
 		UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 		userDTO.setPassword(null);
 

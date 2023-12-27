@@ -71,8 +71,8 @@
         <span v-if="editedMeet">Czy na pewno chcesz usunąć spotkanie <b>{{ editedMeet.name }}</b>?</span>
       </div>
       <template #footer>
-        <Button label="Nie" icon="pi pi-times" text @click="deleteItemConfirm"/>
-        <Button label="Tak" icon="pi pi-check" text @click="deleteMeet"/>
+        <Button label="Nie" icon="pi pi-times" text @click="closeDeleteMeetDialog"/>
+        <Button label="Tak" icon="pi pi-check" text @click="deleteItemConfirm"/>
       </template>
     </Dialog>
   </div>
@@ -215,7 +215,6 @@ export default {
         this.editedMeet.time = hours + ":" + minutes;
       }
 
-      console.log(this.editedMeet.date);
       createOrEditMeet({meetDto: this.editedMeet}).then(() => {
         const detailMessage = this.editedIndex > -1 ? "Zapisano dane spotkania" : "Utworzono nowe spotkanie";
         this.createOrEditMeetDialog = false;

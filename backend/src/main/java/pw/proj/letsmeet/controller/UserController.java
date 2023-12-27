@@ -61,6 +61,11 @@ public class UserController {
 		}
 	}
 
+	@GetMapping("/user/data")
+	public ResponseEntity<?> getLoggedUser() {
+		return ResponseEntity.ok(userService.getLoggedUser());
+	}
+
 	@GetMapping("/users")
 	public ResponseEntity<?> getUsers() {
 		return ResponseEntity.ok(userService.getAllUsers());

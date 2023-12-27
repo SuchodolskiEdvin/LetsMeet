@@ -82,6 +82,7 @@ export default {
       loginRequest({authenticationRequest: this.loginForm})
           .then((response) => {
             localStorage.setItem("token", response.data.token);
+            localStorage.setItem("id", response.data.token);
             if (this.$route.query.next) {
               this.$router.push(this.$route.query.next);
             } else {

@@ -16,11 +16,11 @@
     </template>
     <template #end>
       <div class="flex align-items-center gap-2">
+        <Avatar label="E" class="mr-2" style="background-color:#1E88E5; color: #ffffff" shape="circle"/>
         <button @click="logout" class="p-button p-button-danger p-mr-2">
           <span :class="lastItem.icon"/>
           <span class="ml-2">{{ lastItem.label }}</span>
         </button>
-        <Avatar label="E" class="mr-2" style="background-color:#1E88E5; color: #ffffff" shape="circle"/>
       </div>
     </template>
   </Menubar>
