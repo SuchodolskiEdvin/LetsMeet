@@ -11,7 +11,7 @@
         v-model:first="searchCriteria.page.offset" :total-records="totalRecords"
         @page="onPage" @sort="onPage">
       <Column v-for="col of columns" :key="col.value" :field="col.value" :header="col.text"/>
-      <Column style="min-width: 8rem" header="Actions">
+      <Column style="min-width: 8rem">
         <template #body="slotProps">
           <Button icon="pi pi-info-circle" rounded severity="info" class="mr-2" @click="getMeetInfo(slotProps.data)"/>
           <Button icon="pi pi-pencil" rounded class="mr-2" @click="editMeet(slotProps.data)"/>
@@ -35,7 +35,7 @@
       </template>
     </Dialog>
 
-    <Dialog v-model:visible="createOrEditMeetDialog" :style="{width: '450px'}" header="Product Details" :modal="true"
+    <Dialog v-model:visible="createOrEditMeetDialog" :style="{width: '450px'}" header="Dane spotkania" :modal="true"
         class="p-fluid">
       <VeeForm>
         <div class="field">
@@ -103,12 +103,12 @@ export default {
   data() {
     return {
       columns: [
-        {text: 'Name', align: 'start', sortable: true, value: 'name',},
-        {text: 'Creator', value: 'creatorsFullName'},
-        {text: 'Creation date', value: 'creationDate'},
-        {text: 'Last modification date', value: 'modificationDate'},
-        {text: 'Date', value: 'date'},
-        {text: 'Time', value: 'time'},
+        {text: 'Nazwa', align: 'start', sortable: true, value: 'name',},
+        {text: 'Twórca', value: 'creatorsFullName'},
+        {text: 'Data utworzenia', value: 'creationDate'},
+        {text: 'Data ostatniej zmiany', value: 'modificationDate'},
+        {text: 'Data spotkania', value: 'date'},
+        {text: 'Czas', value: 'time'},
       ],
       meets: [],
       totalRecords: 0,

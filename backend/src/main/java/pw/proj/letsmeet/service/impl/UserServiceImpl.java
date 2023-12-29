@@ -146,6 +146,10 @@ class UserServiceImpl implements UserService {
 		user.setPassword(passwordHash);
 
 		userDAO.save(user);
+
+		if (userDTO.getId() == null) {
+			emailService.sendRegistrationEmail(user);
+		}
 	}
 
 	@Override

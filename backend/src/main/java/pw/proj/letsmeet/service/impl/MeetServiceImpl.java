@@ -11,6 +11,7 @@ import pw.proj.letsmeet.dto.UserDTO;
 import pw.proj.letsmeet.model.Meet;
 import pw.proj.letsmeet.model.User;
 import pw.proj.letsmeet.search.criteria.MeetSearchCriteria;
+import pw.proj.letsmeet.service.EmailService;
 import pw.proj.letsmeet.service.MeetService;
 
 import javax.persistence.EntityManager;
@@ -26,6 +27,9 @@ class MeetServiceImpl implements MeetService {
 
 	@Autowired
 	private MeetDAO meetDAO;
+
+	@Autowired
+	private EmailService emailService;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -55,16 +59,23 @@ class MeetServiceImpl implements MeetService {
 	@Override
 	public void createOrUpdateMeet(MeetDTO meetDTO) {
 		Meet meet = new Meet();
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 		if (meetDTO.getId() != null) {
 			meet = meetDAO.getOne(meetDTO.getId());
 			meet.getParticipants().clear();
 		} else {
-			meet.setCreator((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+			meet.setCreator(user);
 		}
 		modelMapper.map(meetDTO, meet);
 
 		meetDAO.save(meet);
+
+		if (meetDTO.getId() == null) {
+			emailService.sendMeetCreationEmail(user);
+			meetDTO.getParticipants().remove(user.getId());
+			emailService.sendMeetInvitationEmail(meetDTO.getParticipants());
+		}
 	}
 
 	@Transactional

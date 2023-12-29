@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -29,7 +28,7 @@ public class MeetDTO {
 
 	private String creatorsFullName;
 
-	private Set<UserDTO> participants;
+	private List<UserDTO> participants;
 
 	private List<Long> participantsId;
 }
