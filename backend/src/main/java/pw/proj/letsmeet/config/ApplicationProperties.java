@@ -22,4 +22,13 @@ public class ApplicationProperties {
 
 	@Value("${api.generate}")
 	private boolean apiGenerate;
+
+	@Value("${zoom.api.key}")
+	private String zoomApiKey;
+
+	@Value("${zoom.api.secret}")
+	private String zoomApiSecret;
+
+	@Value("${zoom.account.id}")
+	private String zoomAccountId;
 }
