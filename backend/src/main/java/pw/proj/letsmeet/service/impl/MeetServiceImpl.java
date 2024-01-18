@@ -8,11 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import pw.proj.letsmeet.dao.MeetDAO;
 import pw.proj.letsmeet.dto.MeetDTO;
 import pw.proj.letsmeet.dto.UserDTO;
+import pw.proj.letsmeet.dto.ZoomMeetingObjectDTO;
 import pw.proj.letsmeet.model.Meet;
 import pw.proj.letsmeet.model.User;
 import pw.proj.letsmeet.search.criteria.MeetSearchCriteria;
 import pw.proj.letsmeet.service.EmailService;
 import pw.proj.letsmeet.service.MeetService;
+import pw.proj.letsmeet.service.ZoomService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -30,6 +32,9 @@ class MeetServiceImpl implements MeetService {
 
 	@Autowired
 	private EmailService emailService;
+
+	@Autowired
+	private ZoomService zoomService;
 
 	@PersistenceContext
 	private EntityManager entityManager;

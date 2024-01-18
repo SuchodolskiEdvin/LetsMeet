@@ -20,6 +20,9 @@ public class ApplicationProperties {
 	@Value("${frontend.address}")
 	private String frontendAddress;
 
+	@Value("${backend.address}")
+	private String backendAddress;
+
 	@Value("${api.generate}")
 	private boolean apiGenerate;
 
@@ -31,4 +34,10 @@ public class ApplicationProperties {
 
 	@Value("${zoom.account.id}")
 	private String zoomAccountId;
+
+	@Value("${zoom.api.issuer}")
+	private String zoomIssuer;
+
+	@Value("${zoom.api.url}")
+	private String zoomUrl;
 }
