@@ -26,18 +26,12 @@ public class ApplicationProperties {
 	@Value("${api.generate}")
 	private boolean apiGenerate;
 
-	@Value("${zoom.api.key}")
-	private String zoomApiKey;
-
-	@Value("${zoom.api.secret}")
-	private String zoomApiSecret;
-
 	@Value("${zoom.account.id}")
 	private String zoomAccountId;
 
-	@Value("${zoom.api.issuer}")
-	private String zoomIssuer;
+	@Value("${zoom.client.id}")
+	private String zoomClientId;
 
-	@Value("${zoom.api.url}")
-	private String zoomUrl;
+	@Value("${zoom.client.secret")
+	private String zoomClientSecret;
 }

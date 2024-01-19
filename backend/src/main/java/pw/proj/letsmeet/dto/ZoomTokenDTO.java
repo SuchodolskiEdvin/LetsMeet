@@ -1,15 +1,15 @@
 package pw.proj.letsmeet.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 @Data
 public class ZoomTokenDTO {
-	@JsonProperty(value = "authorization_token")
-	private String authorizationToken;
-
 	@JsonProperty(value = "access_token")
 	private String accessToken;
 
@@ -19,5 +19,9 @@ public class ZoomTokenDTO {
 	@JsonProperty(value = "expires_in")
 	private Long expiresIn;
 
+	@JsonProperty(value = "scope")
 	private String scope;
+
+	@JsonIgnore
+	private Date expirationDate;
 }
