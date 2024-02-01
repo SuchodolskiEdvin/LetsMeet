@@ -35,29 +35,45 @@
       </template>
     </Dialog>
 
-    <Dialog v-model:visible="createOrEditMeetDialog" :style="{width: '450px'}" header="Dane spotkania" :modal="true"
+    <Dialog v-model:visible="createOrEditMeetDialog" :style="{width: '550px'}" header="Dane spotkania" :modal="true"
         class="p-fluid">
-      <VeeForm>
-        <div class="field">
-          <label for="name">Nazwa</label>
+      <VeeForm class="mb-5">
+        <div class="field flex-auto">
+          <label for="name" class="mb-2">Nazwa</label>
           <InputText id="name" v-model.trim="editedMeet.name" required="true" autofocus/>
         </div>
         <div class="field flex-auto">
-          <label for="date">Data</label>
+          <label for="date" class="mb-2">Data</label>
           <Calendar id="date" v-model="editedMeet.date" :minDate="new Date()"
               aria-describedby="date-error"/>
         </div>
         <div class="field flex-auto">
-          <label for="time" class="block mb-2">Czas</label>
+          <label for="time" class="block mb-2">Godzina rozpoczęcia</label>
           <Calendar id="time" v-model="editedMeet.time" time-only hourFormat="24"/>
         </div>
+        <div class="field flex-auto">
+          <label for="duration" class="mb-2">Czas trwania</label>
+          <div class="grid">
+            <div class="col-6">
+              <Dropdown v-model="editedMeet.durationHour" :options="participants" optionLabel="TEST NAZWA"
+                  placeholder="Godz." class="text-center py-0"/>
+            </div>
+            <div class="col-6">
+              <Dropdown v-model="editedMeet.durationMinutes" :options="participants" optionLabel="TEST NAZWA"
+                  placeholder="Min" class="text-center py-0"/>
+            </div>
+          </div>
+        </div>
+        <div class="field flex-auto">
+          <label for="participants" class="mb-2">Uczestnicy spotkania</label>
+          <MultiSelect v-model="editedMeet.participants" :options="participants" optionLabel="email" filter placeholder="Wybierz uczestników"
+              :maxSelectedLabels="3" class="w-full" />
+        </div>
+        <div class="field flex-auto">
+          <Checkbox v-model="editedMeet.zoom" :binary="true" />
+          <label for="zoom" class="mr-2">Spotkanie online</label>
+        </div>
       </VeeForm>
-
-      <div class="field">
-        <label for="participants" class="mb-3">Uczestnicy spotkania</label>
-        <MultiSelect v-model="editedMeet.participants" :options="participants" optionLabel="email" filter placeholder="Wybierz uczestników"
-          :maxSelectedLabels="3" class="w-full" />
-      </div>
 
       <template #footer>
         <Button label="Anuluj" icon="pi pi-times" text @click="closeCreateOrEditMeetDialog"/>
@@ -85,6 +101,8 @@ import Toolbar from "primevue/toolbar";
 import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
 import Calendar from "primevue/calendar";
+import Checkbox from 'primevue/checkbox';
+import Dropdown from 'primevue/dropdown';
 import {Form as VeeForm} from "vee-validate";
 import {
   getUsersUsingGET as getUsers,
@@ -98,17 +116,15 @@ import {ToastUtils} from "@/util/ToastUtils";
 
 export default {
   name: "MainView",
-  components: {DataTable, Column, Toolbar, Button, MultiSelect, Calendar, VeeForm},
+  components: {DataTable, Column, Toolbar, Button, MultiSelect, Calendar, Dropdown, Checkbox, VeeForm},
 
   data() {
     return {
       columns: [
         {text: 'Nazwa', align: 'start', sortable: true, value: 'name',},
-        {text: 'Twórca', value: 'creatorsFullName'},
-        {text: 'Data utworzenia', value: 'creationDate'},
-        {text: 'Data ostatniej zmiany', value: 'modificationDate'},
-        {text: 'Data spotkania', value: 'date'},
-        {text: 'Czas', value: 'time'},
+        {text: 'Twórca', sortable: true, value: 'creatorsFullName'},
+        {text: 'Data spotkania', sortable: true, value: 'date'},
+        {text: 'Godzina rozpoczęcia', value: 'time'},
       ],
       meets: [],
       totalRecords: 0,
@@ -130,6 +146,9 @@ export default {
         date: '',
         time: '',
         participants: [],
+        durationHour: '',
+        durationMinutes: '',
+        zoom: false,
       },
       participants: [],
     }
@@ -237,7 +256,9 @@ export default {
         id: null,
         name: "",
         date: "",
-        time: ""
+        time: "",
+        duration: "",
+        zoom: false,
       }
     },
 
@@ -281,18 +302,6 @@ export default {
     formTitle() {
       return this.editedIndex === -1 ? 'New Meet' : 'Edit Meet'
     },
-  },
-
-  watch: {
-    // dialog(val) {
-    //   val || this.close()
-    // },
-    // dialogDelete(val) {
-    //   val || this.closeDelete()
-    // },
-    // menu(val) {
-    //   val && setTimeout(() => (this.activePicker = 'YEAR'))
-    // },
   },
 
 }
