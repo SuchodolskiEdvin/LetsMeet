@@ -16,11 +16,11 @@
     </template>
     <template #end>
       <div class="flex align-items-center gap-2">
-        <Avatar label="E" class="mr-2" style="background-color:#1E88E5; color: #ffffff" shape="circle"/>
-        <button @click="logout" class="p-button p-button-danger p-mr-2">
+        <Avatar :label="initials" class="mr-2" style="background-color:#1E88E5; color: #ffffff" shape="circle"/>
+        <Button @click="logout" class="p-button p-button-danger p-mr-2">
           <span :class="lastItem.icon"/>
           <span class="ml-2">{{ lastItem.label }}</span>
-        </button>
+        </Button>
       </div>
     </template>
   </Menubar>
@@ -37,6 +37,7 @@ export default {
 
   data() {
     return {
+      initials: this.getInitials(),
       headers: [{
         label: 'Home',
         icon: 'pi pi-home',
@@ -57,6 +58,12 @@ export default {
     logout() {
       localStorage.removeItem("token");
       this.$router.push({name: "login"});
+    },
+
+    getInitials() {
+      const [firstName, lastName] = localStorage.getItem("fullName").split(' ');
+
+      return `${firstName[0].toUpperCase()}${lastName[0].toUpperCase()}`;
     },
   },
 

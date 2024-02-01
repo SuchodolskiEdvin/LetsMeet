@@ -83,6 +83,7 @@ export default {
           .then((response) => {
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("id", response.data.id);
+            localStorage.setItem("fullName", response.data.fullName);
             if (this.$route.query.next) {
               this.$router.push(this.$route.query.next);
             } else {
