@@ -2,7 +2,7 @@
   <div class="card">
     <Toolbar class="mb-4">
       <template #end>
-        <Button label="New" icon="pi pi-plus" severity="success" class="mr-2" @click="createMeet"/>
+        <Button label="Dodaj" icon="pi pi-plus" severity="success" class="mr-2" @click="createMeet"/>
       </template>
     </Toolbar>
 
@@ -47,31 +47,26 @@
           <Calendar id="date" v-model="editedMeet.date" :minDate="new Date()"
               aria-describedby="date-error"/>
         </div>
-        <div class="field flex-auto">
-          <label for="time" class="block mb-2">Godzina rozpoczęcia</label>
-          <Calendar id="time" v-model="editedMeet.time" time-only hourFormat="24"/>
-        </div>
-        <div class="field flex-auto">
-          <label for="duration" class="mb-2">Czas trwania</label>
-          <div class="grid">
+        <div class="field flex-auto grid">
             <div class="col-6">
-              <Dropdown v-model="editedMeet.durationHour" :options="participants" optionLabel="TEST NAZWA"
-                  placeholder="Godz." class="text-center py-0"/>
+              <label for="timeStart" class="mb-2">Godzina rozpoczęcia</label>
+              <Dropdown v-model="editedMeet.timeStart" :options="time"
+                  placeholder="HH:MM" class=""/>
             </div>
             <div class="col-6">
-              <Dropdown v-model="editedMeet.durationMinutes" :options="participants" optionLabel="TEST NAZWA"
-                  placeholder="Min" class="text-center py-0"/>
+              <label for="timeEnd" class="mb-2">Godzina zakończenia</label>
+              <Dropdown v-model="editedMeet.timeEnd" :options="time"
+                  placeholder="HH:MM" class=""/>
             </div>
-          </div>
         </div>
         <div class="field flex-auto">
           <label for="participants" class="mb-2">Uczestnicy spotkania</label>
           <MultiSelect v-model="editedMeet.participants" :options="participants" optionLabel="email" filter placeholder="Wybierz uczestników"
               :maxSelectedLabels="3" class="w-full" />
         </div>
-        <div class="field flex-auto">
+        <div>
           <Checkbox v-model="editedMeet.zoom" :binary="true" />
-          <label for="zoom" class="mr-2">Spotkanie online</label>
+          <label for="zoom" class="mx-2">Utworzyć spotkanie online (ZOOM)</label>
         </div>
       </VeeForm>
 
@@ -81,7 +76,7 @@
       </template>
     </Dialog>
 
-    <Dialog v-model:visible="deleteMeetDialog" :style="{width: '450px'}" header="Confirm" :modal="true">
+    <Dialog v-model:visible="deleteMeetDialog" :style="{width: '450px'}" header="Uwaga" :modal="true">
       <div class="confirmation-content">
         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"/>
         <span v-if="editedMeet">Czy na pewno chcesz usunąć spotkanie <b>{{ editedMeet.name }}</b>?</span>
@@ -121,10 +116,11 @@ export default {
   data() {
     return {
       columns: [
-        {text: 'Nazwa', align: 'start', sortable: true, value: 'name',},
-        {text: 'Twórca', sortable: true, value: 'creatorsFullName'},
-        {text: 'Data spotkania', sortable: true, value: 'date'},
-        {text: 'Godzina rozpoczęcia', value: 'time'},
+        {text: 'Nazwa', align: 'start', sortable: true, value: 'name'},
+        {text: 'Twórca', sortable: true, value: 'creator.fullName'},
+        {text: 'Data', sortable: true, value: 'date'},
+        {text: 'Godzina rozpoczęcia', value: 'timeStart'},
+        {text: 'Godzina zakończenia', value: 'timeEnd'},
       ],
       meets: [],
       totalRecords: 0,
@@ -144,21 +140,34 @@ export default {
         id: '',
         name: '',
         date: '',
-        time: '',
+        timeStart: '',
+        timeEnd: '',
         participants: [],
-        durationHour: '',
-        durationMinutes: '',
         zoom: false,
       },
       participants: [],
+      test: ['test1', 'test2'],
+      time: ['12:00am', '12:15am', '12:30am', '12:45am', '01:00am', '01:15am', '01:30am', '01:45am',
+        '02:00am', '02:15am', '02:30am', '02:45am', '03:00am', '03:15am', '03:30am', '03:45am',
+        '04:00am', '04:15am', '04:30am', '04:45am', '05:00am', '05:15am', '05:30am', '05:45am',
+        '06:00am', '06:15am', '06:30am', '06:45am', '07:00am', '07:15am', '07:30am', '07:45am',
+        '08:00am', '08:15am', '08:30am', '08:45am', '09:00am', '09:15am', '09:30am', '09:45am',
+        '10:00am', '10:15am', '10:30am', '10:45am', '11:00am', '11:15am', '11:30am', '11:45am',
+        '12:00pm', '12:15pm', '12:30pm', '12:45pm', '01:00pm', '01:15pm', '01:30pm', '01:45pm',
+        '02:00pm', '02:15pm', '02:30pm', '02:45pm', '03:00pm', '03:15pm', '03:30pm', '03:45pm',
+        '04:00pm', '04:15pm', '04:30pm', '04:45pm', '05:00pm', '05:15pm', '05:30pm', '05:45pm',
+        '06:00pm', '06:15pm', '06:30pm', '06:45pm', '07:00pm', '07:15pm', '07:30pm', '07:45pm',
+        '08:00pm', '08:15pm', '08:30pm', '08:45pm', '09:00pm', '09:15pm', '09:30pm', '09:45pm',
+        '10:00pm', '10:15pm', '10:30pm', '10:45pm', '11:00pm', '11:15pm', '11:30pm', '11:45pm'],
     }
   },
 
   methods: {
     getAllParticipants() {
+      const userId = localStorage.getItem("id");
       getUsers()
           .then((response) => {
-            this.participants = response.data;
+            this.participants = response.data.filter(participant => participant.id != userId);
           })
           .catch((error) => {
             console.log(error);
@@ -256,8 +265,10 @@ export default {
         id: null,
         name: "",
         date: "",
-        time: "",
+        timeStart: "",
+        timeEnd: "",
         duration: "",
+        participants: [],
         zoom: false,
       }
     },

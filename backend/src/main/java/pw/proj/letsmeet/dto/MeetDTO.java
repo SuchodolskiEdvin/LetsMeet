@@ -16,17 +16,15 @@ public class MeetDTO {
 
 	private Long id;
 
-	private LocalDate creationDate;
-
-	private LocalDate modificationDate;
-
 	private String name;
 
 	private LocalDate date;
 
-	private String time;
+	private String timeStart;
 
-	private String creatorsFullName;
+	private String timeEnd;
+
+	private UserDTO creator;
 
 	private List<UserDTO> participants;
 

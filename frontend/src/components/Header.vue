@@ -39,16 +39,16 @@ export default {
     return {
       initials: this.getInitials(),
       headers: [{
-        label: 'Home',
+        label: 'Strona główna',
         icon: 'pi pi-home',
         url: '/home'
       }, {
-        label: 'Profile',
+        label: 'Użytkownik',
         icon: 'pi pi-user',
         url: '/user/edit'
       }],
       lastItem: {
-        label: 'Logout',
+        label: 'Wyloguj',
         icon: 'pi pi-sign-out'
       }
     };

@@ -48,8 +48,9 @@ class MeetServiceImpl implements MeetService {
 				.filter(meet -> meet.getParticipants().contains(user))
 				.map(meet -> {
 					MeetDTO meetDTO = modelMapper.map(meet, MeetDTO.class);
-					meetDTO.setCreatorsFullName(meet.getCreator().getFullName());
 					meetDTO.setParticipantsId(meet.getParticipants().stream().map(User::getId).toList());
+					meetDTO.getCreator().setPassword(null);
+					meetDTO.setParticipants(null);
 					return meetDTO;
 				})
 				.collect(Collectors.toList());
@@ -73,6 +74,7 @@ class MeetServiceImpl implements MeetService {
 			meet.setCreator(user);
 		}
 		modelMapper.map(meetDTO, meet);
+		meet.getParticipants().add(user);
 
 		meetDAO.save(meet);
 

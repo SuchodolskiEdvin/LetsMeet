@@ -62,7 +62,7 @@ class UserServiceImpl implements UserService {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 			String token = jwtTokenProvider.createToken(email);
 			Map<Object, Object> model = new HashMap<>();
-			model.put("email", email);
+			model.put("id", user.getId());
 			model.put("token", token);
 			model.put("fullName", user.getFullName());
 			return ok(model);
