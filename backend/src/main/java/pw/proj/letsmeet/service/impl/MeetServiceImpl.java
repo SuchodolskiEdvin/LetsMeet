@@ -19,6 +19,7 @@ import pw.proj.letsmeet.service.ZoomService;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,18 +71,38 @@ class MeetServiceImpl implements MeetService {
 		if (meetDTO.getId() != null) {
 			meet = meetDAO.getOne(meetDTO.getId());
 			meet.getParticipants().clear();
+			if (meetDTO.getIsOnline()) {
+//				zoomService.editMeeting(meetDTO);
+			}
 		} else {
 			meet.setCreator(user);
+			if (meetDTO.getIsOnline()) {
+				ZoomMeetingObjectDTO zoomMeet = zoomService.createMeeting(meetDTO);
+				meet.setZoomUrlJoinLink(zoomMeet.getJoin_url());
+				meet.setZoomId(zoomMeet.getId());
+			}
 		}
-		modelMapper.map(meetDTO, meet);
-		meet.getParticipants().add(user);
+
+		meet.setName(meetDTO.getName());
+		meet.setDate(meetDTO.getDate());
+		meet.setTimeStart(meetDTO.getTimeStart());
+		meet.setDuration(meetDTO.getDuration());
+		meet.setIsOnline(meetDTO.getIsOnline());
+
+		Set<User> participants = meetDTO.getParticipants().stream()
+				.map(p -> modelMapper.map(p, User.class))
+				.collect(Collectors.toSet());
+
+		participants.add(user);
+
+		meet.setParticipants(participants);
 
 		meetDAO.save(meet);
 
 		if (meetDTO.getId() == null) {
-			emailService.sendMeetCreationEmail(user);
+			emailService.sendMeetCreationEmail(user, meet);
 			meetDTO.getParticipants().remove(user.getId());
-			emailService.sendMeetInvitationEmail(meetDTO.getParticipants());
+			emailService.sendMeetInvitationEmail(meetDTO.getParticipants(), meet);
 		}
 	}
 

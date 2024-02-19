@@ -6,6 +6,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import pw.proj.letsmeet.config.ApplicationProperties;
 import pw.proj.letsmeet.dto.UserDTO;
+import pw.proj.letsmeet.model.Meet;
 import pw.proj.letsmeet.model.User;
 import pw.proj.letsmeet.service.EmailService;
 
@@ -36,16 +37,34 @@ public class EmailServiceImpl implements EmailService {
 	}
 
 	@Override
-	public void sendMeetCreationEmail(User user) {
-		String text = "Udało Ci się utworzyć nowe spotkanie.";
+	public void sendMeetCreationEmail(User user, Meet meet) {
+		String text = "Udało Ci się utworzyć nowe spotkanie. \n\n" +
+				"Dane spotkania: \n" +
+				"Nazwa: " + meet.getName() + "\n" +
+				"Data: " + meet.getDate() + "\n" +
+				"Godzina rozpoczęcia: " + meet.getTimeStart() + "\n" +
+				"Czas trwania: " + meet.getDuration() + "\n";
+
+		if (meet.getIsOnline()) {
+			text += "Link do spotkania: " + meet.getZoomUrlJoinLink();
+		}
 
 		this.sendSimpleMessage(user.getEmail(), "LetsMeet | Utworzenie spotkania", text);
 	}
 
 	@Override
-	public void sendMeetInvitationEmail(List<UserDTO> users) {
+	public void sendMeetInvitationEmail(List<UserDTO> users, Meet meet) {
 		users.forEach(user -> {
-			String text = "Zostałeś zaproszony na spotkanie.";
+			String text = "Zostałeś zaproszony na spotkanie. \n\n" +
+					"Dane spotkania: \n" +
+					"Nazwa: " + meet.getName() + "\n" +
+					"Data: " + meet.getDate() + "\n" +
+					"Godzina rozpoczęcia: " + meet.getTimeStart() + "\n" +
+					"Czas trwania: " + meet.getDuration() + "\n";
+
+			if (meet.getIsOnline()) {
+				text += "Link do spotkania: " + meet.getZoomUrlJoinLink();
+			}
 
 			this.sendSimpleMessage(user.getEmail(), "LetsMeet | Zaproszenie na spotkania", text);
 		});

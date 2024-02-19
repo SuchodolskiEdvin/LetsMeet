@@ -14,7 +14,7 @@
       <Column style="min-width: 8rem">
         <template #body="slotProps">
           <Button icon="pi pi-info-circle" rounded severity="info" class="mr-2" @click="getMeetInfo(slotProps.data)"/>
-          <Button icon="pi pi-pencil" rounded class="mr-2" @click="editMeet(slotProps.data)"/>
+          <Button icon="pi pi-pencil" rounded class="mr-2" @click="editMeet(slotProps.data)" :disabled="isCreator(slotProps.data)"/>
           <Button icon="pi pi-trash" rounded severity="danger" @click="deleteMeet(slotProps.data)"/>
         </template>
       </Column>
@@ -22,12 +22,18 @@
 
     <Dialog v-model:visible="showAdditionalInformationMeetDialog" :style="{width: '450px'}"
         header="Informacja o spotkaniu" :modal="true">
-      <div class="confirmation-content">
+      <div>
         <h2>Lista uczestników</h2>
         <ul>
           <li v-for="participant in this.editedMeet.participants" :key="participant.id">
             {{ participant.fullName }} (email: {{ participant.email }})
           </li>
+        </ul>
+      </div>
+      <div>
+        <h2>Link do spotkania ZOOM</h2>
+        <ul>
+          <a :href="this.editedMeet.zoomUrlJoinLink" v-text="this.editedMeet.zoomUrlJoinLink" />
         </ul>
       </div>
       <template #footer>
@@ -49,14 +55,14 @@
         </div>
         <div class="field flex-auto grid">
             <div class="col-6">
-              <label for="timeStart" class="mb-2">Godzina rozpoczęcia</label>
+              <label for="timeStart">Godzina rozpoczęcia</label>
               <Dropdown v-model="editedMeet.timeStart" :options="time"
-                  placeholder="HH:MM" class=""/>
+                  placeholder="HH:MM" class="mt-2"/>
             </div>
             <div class="col-6">
-              <label for="timeEnd" class="mb-2">Godzina zakończenia</label>
-              <Dropdown v-model="editedMeet.timeEnd" :options="time"
-                  placeholder="HH:MM" class=""/>
+              <label for="duration">Czas trwania</label>
+              <Dropdown v-model="editedMeet.duration" :options="duration"
+                  placeholder="HH:MM" class="mt-2"/>
             </div>
         </div>
         <div class="field flex-auto">
@@ -64,9 +70,9 @@
           <MultiSelect v-model="editedMeet.participants" :options="participants" optionLabel="email" filter placeholder="Wybierz uczestników"
               :maxSelectedLabels="3" class="w-full" />
         </div>
-        <div>
-          <Checkbox v-model="editedMeet.zoom" :binary="true" />
-          <label for="zoom" class="mx-2">Utworzyć spotkanie online (ZOOM)</label>
+        <div class="flex-auto">
+          <Checkbox v-model="editedMeet.isOnline" :binary="true" />
+          <label for="isOnline" class="mx-2">Utworzyć spotkanie online (ZOOM)</label>
         </div>
       </VeeForm>
 
@@ -120,7 +126,7 @@ export default {
         {text: 'Twórca', sortable: true, value: 'creator.fullName'},
         {text: 'Data', sortable: true, value: 'date'},
         {text: 'Godzina rozpoczęcia', value: 'timeStart'},
-        {text: 'Godzina zakończenia', value: 'timeEnd'},
+        {text: 'Czas trwania', value: 'duration'},
       ],
       meets: [],
       totalRecords: 0,
@@ -141,11 +147,12 @@ export default {
         name: '',
         date: '',
         timeStart: '',
-        timeEnd: '',
+        duration: '',
         participants: [],
-        zoom: false,
+        isOnline: false,
       },
       participants: [],
+      loggedUsersId: localStorage.getItem("id"),
       test: ['test1', 'test2'],
       time: ['12:00am', '12:15am', '12:30am', '12:45am', '01:00am', '01:15am', '01:30am', '01:45am',
         '02:00am', '02:15am', '02:30am', '02:45am', '03:00am', '03:15am', '03:30am', '03:45am',
@@ -159,15 +166,18 @@ export default {
         '06:00pm', '06:15pm', '06:30pm', '06:45pm', '07:00pm', '07:15pm', '07:30pm', '07:45pm',
         '08:00pm', '08:15pm', '08:30pm', '08:45pm', '09:00pm', '09:15pm', '09:30pm', '09:45pm',
         '10:00pm', '10:15pm', '10:30pm', '10:45pm', '11:00pm', '11:15pm', '11:30pm', '11:45pm'],
+      duration: ['00:15', '00:30', '00:45', '01:00', '01:15', '01:30', '01:45', '02:00',
+        '02:15', '02:30', '02:45', '03:00', '03:15', '03:30', '03:45', '04:00',
+        '04:15', '04:30', '04:45', '05:00', '05:15', '05:30', '05:45', '06:00',
+        '06:15', '06:30', '06:45', '07:00', '07:15', '07:30', '07:45', '08:00'],
     }
   },
 
   methods: {
     getAllParticipants() {
-      const userId = localStorage.getItem("id");
       getUsers()
           .then((response) => {
-            this.participants = response.data.filter(participant => participant.id != userId);
+            this.participants = response.data.filter(participant => participant.id != this.loggedUsersId);
           })
           .catch((error) => {
             console.log(error);
@@ -266,10 +276,9 @@ export default {
         name: "",
         date: "",
         timeStart: "",
-        timeEnd: "",
         duration: "",
         participants: [],
-        zoom: false,
+        isOnline: false,
       }
     },
 
@@ -301,6 +310,10 @@ export default {
         first: this.searchCriteria.page.offset,
         rows: this.searchCriteria.page.limit,
       };
+    },
+
+    isCreator(item) {
+      return this.loggedUsersId != item.creator.id;
     },
   },
 

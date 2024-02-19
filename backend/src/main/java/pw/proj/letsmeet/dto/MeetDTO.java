@@ -22,9 +22,15 @@ public class MeetDTO {
 
 	private String timeStart;
 
-	private String timeEnd;
+	private String duration;
 
 	private UserDTO creator;
+
+	private Boolean isOnline;
+
+	private String zoomUrlJoinLink;
+
+	private Long zoomId;
 
 	private List<UserDTO> participants;
 

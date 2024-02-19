@@ -24,10 +24,22 @@ public class Meet extends AbstractEntity {
     private LocalDate date;
 
     @Column
-    private String time;
+    private String timeStart;
+
+    @Column
+    private String duration;
 
     @OneToOne
     private User creator;
+
+    @Column
+    private Boolean isOnline;
+
+    @Column
+    private String zoomUrlJoinLink;
+
+    @Column
+    private Long zoomId;
 
     @ManyToMany
     private Set<User> participants;

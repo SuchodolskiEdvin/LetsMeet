@@ -10,7 +10,11 @@ import pw.proj.letsmeet.config.ApplicationProperties;
 import pw.proj.letsmeet.dto.*;
 import pw.proj.letsmeet.service.ZoomService;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Date;
+import java.util.Locale;
 
 @Service
 public class ZoomServiceImpl implements ZoomService {
@@ -22,13 +26,22 @@ public class ZoomServiceImpl implements ZoomService {
 	private ZoomTokenDTO zoomTokenDTO;
 
 	@Override
-	public ZoomMeetingObjectDTO createMeeting(ZoomMeetingObjectDTO zoomMeetingObjectDTO) {
-		String apiUrl = "https://api.zoom.us/v2/users/" + applicationProperties.getZoomAccountId() + "/meetings";
-
-		// replace with your password or method
-		zoomMeetingObjectDTO.setPassword("!3tsm33T");
-		// replace email with your email
+	public ZoomMeetingObjectDTO createMeeting(MeetDTO meetDTO) {
+		// Map Meet to ZoomMettingObject
+		ZoomMeetingObjectDTO zoomMeetingObjectDTO = new ZoomMeetingObjectDTO();
 		zoomMeetingObjectDTO.setHost_email("letsmeetmanagement@gmail.com");
+		zoomMeetingObjectDTO.setTopic(meetDTO.getName());
+
+		DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+				.parseCaseInsensitive()
+				.appendPattern("yyyy-MM-dd h:mma")
+				.toFormatter(Locale.ENGLISH);
+		LocalDateTime dateTime = LocalDateTime.parse(meetDTO.getDate() + " " + meetDTO.getTimeStart(), formatter);
+		zoomMeetingObjectDTO.setStart_time(dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
+		String[] durationParts = meetDTO.getDuration().split(":");
+		zoomMeetingObjectDTO.setDuration(Integer.parseInt(durationParts[0]) * 60 + Integer.parseInt(durationParts[1]));
+		zoomMeetingObjectDTO.setTimezone("Europe/Warsaw");
 
 		// Optional Settings for host and participant related options
 		ZoomMeetingSettingsDTO settingsDTO = new ZoomMeetingSettingsDTO();
@@ -39,12 +52,7 @@ public class ZoomServiceImpl implements ZoomService {
 		settingsDTO.setMute_upon_entry(true);
 		zoomMeetingObjectDTO.setSettings(settingsDTO);
 
-		zoomMeetingObjectDTO.setAgenda("My Meeting");
-		zoomMeetingObjectDTO.setDuration(60);
-		zoomMeetingObjectDTO.setStart_time("2024-03-25T07:32:55Z");
-		zoomMeetingObjectDTO.setTimezone("America/Los_Angeles");
-		zoomMeetingObjectDTO.setTopic("My Meeting");
-
+		String apiUrl = "https://api.zoom.us/v2/users/me/meetings";
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		try {
@@ -55,12 +63,12 @@ public class ZoomServiceImpl implements ZoomService {
 		headers.add("content-type", "application/json");
 		HttpEntity<ZoomMeetingObjectDTO> httpEntity = new HttpEntity<>(zoomMeetingObjectDTO, headers);
 		ResponseEntity<ZoomMeetingObjectDTO> zEntity = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, ZoomMeetingObjectDTO.class);
-		if(zEntity.getStatusCodeValue() == 201) {
+		if (zEntity.getStatusCodeValue() == 201) {
 			return zEntity.getBody();
 		} else {
 			System.out.println("Error while creating zoom meeting {}" + zEntity.getStatusCode());
+			return null;
 		}
-		return zoomMeetingObjectDTO;
 	}
 
 	/**
