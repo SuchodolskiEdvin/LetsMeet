@@ -1,0 +1,5 @@
+build:
+  docker:
+    web: Dockerfile
+run:
+  web: cd backend && java -jar target/letsmeet-0.0.1-SNAPSHOT.jar
