@@ -3,15 +3,11 @@ build:
   packs:
     - https://github.com/heroku/heroku-buildpack-java.git
     - https://github.com/heroku/heroku-buildpack-nodejs.git
-  # Specify any scripts or commands that need to be run to build your application.
-  # It could include copying frontend build output to the Spring Boot static directory,
-  # but this depends on how you want to serve your frontend assets.
-  # If your backend is a Spring Boot application that serves the frontend files, you might do something like this:
   scripts:
+    # Build your frontend first and move it to the backend's static directory
     - npm install --prefix frontend
     - npm run build --prefix frontend
+    - mkdir -p backend/src/main/resources/static
     - cp -R frontend/dist/* backend/src/main/resources/static/
-  # Define how to build the backend if it's not just running `mvn package`
-  # For example, if you need to navigate to the backend directory first:
-    - cd backend && mvn package
-
+    # Now build your backend
+    - mvn clean install -f backend/pom.xml
