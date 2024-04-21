@@ -1,5 +1,17 @@
 build:
-  docker:
-    web: Dockerfile
-run:
-  web: cd backend && java -jar target/letsmeet-0.0.1-SNAPSHOT.jar
+  # Specify which buildpacks to use.
+  packs:
+    - https://github.com/heroku/heroku-buildpack-java.git
+    - https://github.com/heroku/heroku-buildpack-nodejs.git
+  # Specify any scripts or commands that need to be run to build your application.
+  # It could include copying frontend build output to the Spring Boot static directory,
+  # but this depends on how you want to serve your frontend assets.
+  # If your backend is a Spring Boot application that serves the frontend files, you might do something like this:
+  scripts:
+    - npm install --prefix frontend
+    - npm run build --prefix frontend
+    - cp -R frontend/dist/* backend/src/main/resources/static/
+  # Define how to build the backend if it's not just running `mvn package`
+  # For example, if you need to navigate to the backend directory first:
+    - cd backend && mvn package
+
