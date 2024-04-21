@@ -1,13 +1,5 @@
 build:
-  # Specify which buildpacks to use.
-  packs:
-    - https://github.com/heroku/heroku-buildpack-java.git
-    - https://github.com/heroku/heroku-buildpack-nodejs.git
-  scripts:
-    # Build your frontend first and move it to the backend's static directory
-    - npm install --prefix frontend
-    - npm run build --prefix frontend
-    - mkdir -p backend/src/main/resources/static
-    - cp -R frontend/dist/* backend/src/main/resources/static/
-    # Now build your backend
-    - mvn clean install -f backend/pom.xml
+  docker:
+    web: backend/Dockerfile
+    # If you need to run the frontend separately, you would need a Dockerfile for it as well
+    # worker: frontend/Dockerfile
