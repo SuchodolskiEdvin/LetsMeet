@@ -21,7 +21,7 @@
                 </span>
               </div>
             </div>
-            <div class="login-error" v-if="badCredentials">
+            <div class="login-error" v-if="badCredentials" style="color: red">
               Niepoprawne dane logowania
             </div>
             <Button label="Zaloguj sie" class="mt-3" type="submit"
